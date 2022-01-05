@@ -14,6 +14,14 @@ const colorMap = {
   door: 'white'
 }
 
+const opacityMap = {
+  wall: 'opaque',
+  floor: 'clear',
+  pellet: 'clear',
+  superPellet: 'clear',
+  door: 'clear'
+}
+
 const plurify = s => s + 's'
 
 export function createBoard(boardString) {
@@ -51,6 +59,8 @@ function parseBoard(boardString) {
     superPellets: [],
     doors: [],
     rests: [],
+    opaque: [],
+    clear: [],
     allTiles: [],
     width: rows[0].length,
     height: rows.length
@@ -62,8 +72,10 @@ function parseBoard(boardString) {
       throw new ParseError(char, x, y)
     }
     const plural = plurify(type)
-    const tile = { type, x, y, char }
+    const opacity = opacityMap[type]
+    const tile = { type, x, y, char, opacity }
     board[plural].push(tile)
+    board[opacity].push(tile)
     board.allTiles.push(tile)
   }))
 
