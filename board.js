@@ -1,3 +1,5 @@
+import { TILE_SIZE } from './config.js'
+
 const typeMap = {
   '#': 'wall',
   '.': 'floor',
@@ -6,12 +8,20 @@ const typeMap = {
   '-': 'door'
 }
 
-const colorMap = {
-  wall: 'blue',
-  floor: 'grey',
-  pellet: 'yellow',
-  superPellet: 'orange',
-  door: 'white'
+const arcMap = {
+  pellet: {
+    color: 'orange',
+    radius: 0.2
+  },
+  superPellet: {
+    color: 'orange',
+    radius: 0.45
+  }
+}
+
+const opacityColorMap = {
+  opaque: 'blue',
+  clear: 'black'
 }
 
 const opacityMap = {
@@ -35,16 +45,23 @@ export function createBoard(boardString) {
 }
 
 function createRender(board) {
-  return (ctx, tileSize) => {
-    ctx.canvas.width = board.width * tileSize
-    ctx.canvas.height = board.height * tileSize
-    for (const { type, x, y } of board.allTiles) {
-      const color = colorMap[type]
-      ctx.fillStyle = color
-      ctx.fillRect(x * tileSize, y * tileSize, tileSize, tileSize)
+  return ctx => {
+    ctx.canvas.width = board.width * TILE_SIZE
+    ctx.canvas.height = board.height * TILE_SIZE
+    for (const { type, x, y, opacity } of board.allTiles) {
+      const backgroundColor = opacityColorMap[opacity]
+      ctx.fillStyle = backgroundColor
+      ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
       ctx.strokeStyle = 'black'
-      ctx.strokeWidth = 1
-      ctx.strokeRect(x * tileSize, y * tileSize, tileSize, tileSize)
+      ctx.strokeWidth = 0
+      ctx.strokeRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+      if (type in arcMap) {
+        const { color, radius } = arcMap[type]
+        ctx.fillStyle = color
+        ctx.beginPath()
+        ctx.arc(x * TILE_SIZE + TILE_SIZE / 2, y * TILE_SIZE + TILE_SIZE / 2, radius * TILE_SIZE, 0, 2 * Math.PI)
+        ctx.fill()
+      }
     }
   }
 }
@@ -62,6 +79,7 @@ function parseBoard(boardString) {
     opaque: [],
     clear: [],
     allTiles: [],
+    dict: {},
     width: rows[0].length,
     height: rows.length
   }
@@ -78,6 +96,13 @@ function parseBoard(boardString) {
     board[opacity].push(tile)
     board.allTiles.push(tile)
   }))
+
+  for (const tile of board.allTiles) {
+    if (!(tile.x in board.dict)) {
+      board.dict[tile.x] = {}
+    }
+    board.dict[tile.x][tile.y] = tile
+  }
 
   return board
 }

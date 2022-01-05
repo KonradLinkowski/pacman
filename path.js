@@ -1,3 +1,5 @@
+import { TILE_SIZE } from './config.js'
+
 export function createPathFinder(tiles, width, height) {
   const nodes = getNodes(tiles, width, height)
 
@@ -12,7 +14,7 @@ export function createPathFinder(tiles, width, height) {
 function renderPath(ctx, path) {
   for (const p of path) {
     ctx.fillStyle = 'red'
-    ctx.fillRect(p.x * 30, p.y * 30, 30, 30)
+    ctx.fillRect(p.x * TILE_SIZE, p.y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
   }
 }
 
