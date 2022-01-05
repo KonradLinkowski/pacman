@@ -10,8 +10,12 @@ async function main() {
   const tileSize = 30
   const ctx = canvas.getContext('2d')
   render(ctx, tileSize)
-  const { findPath, renderPath } = createPathFinder(board.clear)
-  const path = findPath({ x: 15, y: 15 }, { x: 15, y: 29 })
-  renderPath(ctx, path)
+  const { findPath, renderPath } = createPathFinder(board.clear, board.width, board.height)
+  const path = findPath({ x: 1, y: 1 }, { x: 24, y: 14 })
+  if (path) {
+    renderPath(ctx, path)
+  } else {
+    console.log('no path')
+  }
 
 }

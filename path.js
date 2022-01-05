@@ -1,15 +1,5 @@
-export function createPathFinder(tiles) {
-  const nodes = tiles.map(({ x, y }) => ({ x, y }))
-  for (const node of nodes) {
-    node.neighbours = [
-      { x: -1, y: 0 },
-      { x: 0, y: -1 },
-      { x: 1, y: 0 },
-      { x: 0, y: 1 }
-    ]
-    .map(({ x, y }) => nodes.find(n => n.x == node.x + x && n.y == node.y + y))
-    .filter(Boolean)
-  }
+export function createPathFinder(tiles, width, height) {
+  const nodes = getNodes(tiles, width, height)
 
   const findPath = createFindPath(nodes)
 
@@ -24,6 +14,21 @@ function renderPath(ctx, path) {
     ctx.fillStyle = 'red'
     ctx.fillRect(p.x * 30, p.y * 30, 30, 30)
   }
+}
+
+function getNodes(tiles, width, height) {
+  const nodes = tiles.map(({ x, y }) => ({ x, y }))
+  for (const node of nodes) {
+    node.neighbours = [
+      { x: -1, y: 0 },
+      { x: 0, y: -1 },
+      { x: 1, y: 0 },
+      { x: 0, y: 1 }
+    ]
+    .map(({ x, y }) => nodes.find(n => n.x == (width + node.x + x) % width && n.y == (height + node.y + y) % height))
+    .filter(Boolean)
+  }
+  return nodes
 }
 
 function createFindPath(nodes) {
