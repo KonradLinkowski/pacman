@@ -1,4 +1,5 @@
 import { TILE_SIZE } from './config.js'
+import { categorizeWall, getWallPath } from './wall.js'
 
 const typeMap = {
   '#': 'wall',
@@ -48,7 +49,16 @@ function createRender(board) {
   return ctx => {
     ctx.canvas.width = board.width * TILE_SIZE
     ctx.canvas.height = board.height * TILE_SIZE
-    for (const { type, x, y, opacity } of board.allTiles) {
+    for (const tile of board.allTiles) {
+      const { type, x, y, opacity } = tile
+      if (type == 'wall') {
+        ctx.fillStyle = 'black'
+        ctx.fillRect(tile.x * TILE_SIZE, tile.y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
+        const path = getWallPath(tile)
+        ctx.strokeStyle = 'blue'
+        ctx.stroke(path)
+        continue
+      }
       const backgroundColor = opacityColorMap[opacity]
       ctx.fillStyle = backgroundColor
       ctx.fillRect(x * TILE_SIZE, y * TILE_SIZE, TILE_SIZE, TILE_SIZE)
@@ -102,6 +112,10 @@ function parseBoard(boardString) {
       board.dict[tile.x] = {}
     }
     board.dict[tile.x][tile.y] = tile
+  }
+
+  for (const wall of board.walls) {
+    wall.category = categorizeWall(wall, board.dict)
   }
 
   return board
